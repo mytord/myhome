@@ -3,3 +3,4 @@
 .env
 mosquitto/log/mosquitto.log
 mosquitto/config/passwordfile
+*.pem
