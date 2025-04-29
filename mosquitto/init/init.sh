@@ -1,16 +1,17 @@
 #!/bin/sh
 
-PASSFILE="/mosquitto/config/passwordfile"
+set -e
 
-chown -R mosquitto:mosquitto /mosquitto/config
-chown -R mosquitto:mosquitto /mosquitto/log
-chown -R mosquitto:mosquitto /mosquitto/data
+# Создание директорий, если их нет
+mkdir -p /mosquitto/config
+mkdir -p /mosquitto/data
+mkdir -p /mosquitto/log
 
-if [ ! -f "$PASSFILE" ]; then
-  echo "Generating Mosquitto password file..."
-  mosquitto_passwd -b -c "$PASSFILE" "${MQTT_USER}" "${MQTT_PASSWORD}"
-else
-  echo "Password file already exists."
-fi
+# Назначение прав
+chown -R mosquitto:mosquitto /mosquitto
 
-exec mosquitto -c /mosquitto/config/mosquitto.conf
+# Генерация passwordfile (от имени mosquitto)
+su mosquitto -c "mosquitto_passwd -b -c /mosquitto/config/passwordfile \"$MQTT_USER\" \"$MQTT_PASSWORD\""
+
+# Запуск mosquitto (от имени mosquitto)
+exec su mosquitto -c "mosquitto -c /mosquitto/config/mosquitto.conf"
