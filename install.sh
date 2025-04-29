@@ -27,7 +27,7 @@ echo \
 
 # Установка Docker Engine
 sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nginx
 
 # Проверка установки
 sudo docker version
