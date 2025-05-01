@@ -61,7 +61,7 @@ services:
     restart: unless-stopped
 
   grafana7:
-    image: grafana/grafana:7
+    image: grafana/grafana:7.5.17
     container_name: grafana6
     ports:
       - "3010:3000"
