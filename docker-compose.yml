@@ -60,13 +60,13 @@ services:
       - influxdb
     restart: unless-stopped
 
-  grafana6:
-    image: grafana/grafana:6.7.6
+  grafana7:
+    image: grafana/grafana:7
     container_name: grafana6
     ports:
       - "3010:3000"
     volumes:
-      - grafana6_data:/var/lib/grafana
+      - grafana7_data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
@@ -83,4 +83,4 @@ volumes:
   mosquitto_data:
   influxdb_data:
   grafana_data:
-  grafana6_data:
+  grafana7_data:
