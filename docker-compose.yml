@@ -60,6 +60,19 @@ services:
       - influxdb
     restart: unless-stopped
 
+  www:
+    build:
+      context: .
+      dockerfile: www/Dockerfile
+    container_name: www
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mosquitto
+
 networks:
   default:
     name: monitoring
