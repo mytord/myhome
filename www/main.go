@@ -173,26 +173,18 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 func telegramMessageSender(mqttClient mqtt.Client) {
 	if token := mqttClient.Subscribe("messages", 0, func(client mqtt.Client, msg mqtt.Message) {
-		var data struct {
-			Message string `json:"message"`
-		}
+		text := string(msg.Payload())
 
-		if err := json.Unmarshal(msg.Payload(), &data); err != nil {
-			logger.Error("Невалидный JSON в MQTT", zap.Error(err))
+		if strings.TrimSpace(text) == "" {
+			logger.Warn("MQTT сообщение пустое")
 			return
 		}
 
-		if data.Message == "" {
-			logger.Warn("MQTT сообщение без текста")
-			return
-		}
-
-		// Отправляем в Telegram
-		tgMsg := tgbotapi.NewMessage(chatID, data.Message)
+		tgMsg := tgbotapi.NewMessage(chatID, text)
 		if _, err := bot.Send(tgMsg); err != nil {
 			logger.Error("Ошибка отправки сообщения в Telegram", zap.Error(err))
 		} else {
-			logger.Info("Сообщение из MQTT отправлено в Telegram", zap.String("text", data.Message))
+			logger.Info("Сообщение из MQTT отправлено в Telegram", zap.String("text", text))
 		}
 	}); token.Wait() && token.Error() != nil {
 		logger.Fatal("Ошибка подписки на messages", zap.Error(token.Error()))
