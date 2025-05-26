@@ -173,6 +173,8 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 func telegramMessageSender(mqttClient mqtt.Client) {
 	if token := mqttClient.Subscribe("messages", 0, func(client mqtt.Client, msg mqtt.Message) {
+		logger.Info("Есть сообщение на отправку в telegram.")
+
 		text := string(msg.Payload())
 
 		if strings.TrimSpace(text) == "" {
