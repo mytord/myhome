@@ -153,6 +153,7 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 				tgbotapi.NewKeyboardButton("/pump_off"),
 			),
 		)
+		keyboard.ResizeKeyboard = true
 		msg.ReplyMarkup = keyboard
 		_, err := bot.Send(msg)
 		if err != nil {
