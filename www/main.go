@@ -194,15 +194,15 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 		inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("💧 /pump_on", "pump_on"),
-				tgbotapi.NewInlineKeyboardButtonData("💧 /pump_on 60", "pump_on_60"),
-				tgbotapi.NewInlineKeyboardButtonData("💧 /pump_on 120", "pump_on_120"),
+				tgbotapi.NewInlineKeyboardButtonData("💧 Вкл. насос", "pump_on"),
+				tgbotapi.NewInlineKeyboardButtonData("💧 Вкл. насос на 1 ч", "pump_on_60"),
+				tgbotapi.NewInlineKeyboardButtonData("💧 Вкл. насос на 2 ч", "pump_on_120"),
 			),
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("📊 /status", "status"),
+				tgbotapi.NewInlineKeyboardButtonData("📊 Статус", "status"),
 			),
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("⛔ /pump_off", "pump_off"),
+				tgbotapi.NewInlineKeyboardButtonData("⛔ Выкл. насос", "pump_off"),
 			),
 		)
 
