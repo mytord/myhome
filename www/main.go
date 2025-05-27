@@ -113,7 +113,6 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// === Обработка CallbackQuery (клики по inline-кнопкам) ===
 	if update.CallbackQuery != nil {
 		chatID := update.CallbackQuery.Message.Chat.ID
 		data := update.CallbackQuery.Data
@@ -140,13 +139,11 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 			payload = map[string]interface{}{"command": "status"}
 		}
 
-		// Ответ на callback (иначе Telegram будет крутить "часики")
 		ack := tgbotapi.NewCallback(update.CallbackQuery.ID, "✅ Команда принята: "+data)
 		if _, err := bot.Request(ack); err != nil {
 			logger.Error("Ошибка отправки Callback ответа", zap.Error(err))
 		}
 
-		// Публикация в MQTT
 		if payload != nil {
 			go func(data map[string]interface{}) {
 				jsonPayload, err := json.Marshal(data)
@@ -159,11 +156,13 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 				logger.Info("Команда из CallbackQuery отправлена в MQTT", zap.ByteString("payload", jsonPayload))
 			}(payload)
 		}
+
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	// === Обработка обычных сообщений (Message) ===
 	if update.Message == nil {
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -177,6 +176,7 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 	parts := strings.Fields(text)
 	if len(parts) == 0 {
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -207,11 +207,16 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 		)
 
 		msg.ReplyMarkup = inlineKeyboard
-		if _, err := bot.Send(msg); err != nil {
+		sentMsg, err := bot.Send(msg)
+		if err != nil {
 			logger.Error("Не могу отправить клавиатуру", zap.Error(err))
+		} else {
+			logger.Info("Клавиатура успешно отправлена", zap.Int("message_id", sentMsg.MessageID))
 		}
+
 		w.WriteHeader(http.StatusOK)
 		return
+
 	case "/pump_on":
 		payload = map[string]interface{}{"command": "pump_on"}
 		if arg != "" {
@@ -239,6 +244,8 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 			logger.Info("Команда опубликована в MQTT", zap.ByteString("payload", jsonPayload))
 		}(payload)
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func telegramMessageSender(mqttClient mqtt.Client) {
