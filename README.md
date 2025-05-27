@@ -42,3 +42,8 @@ Receive command:
 ```
 mosquitto_sub -t commands -u admin -P <pwd> -v
 ```
+
+Deploy
+```
+$ git pull && docker compose build && docker compose restart
+```
