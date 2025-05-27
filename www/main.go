@@ -119,6 +119,7 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 	text := strings.TrimSpace(update.Message.Text)
 
 	logger.Info("Получено новое сообщение",
+		zap.Int64("from", update.Message.Chat.ID),
 		zap.String("from", update.Message.From.UserName),
 		zap.String("text", text),
 	)
