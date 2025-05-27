@@ -112,6 +112,57 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
+
+	// === Обработка CallbackQuery (клики по inline-кнопкам) ===
+	if update.CallbackQuery != nil {
+		chatID := update.CallbackQuery.Message.Chat.ID
+		data := update.CallbackQuery.Data
+		user := update.CallbackQuery.From.UserName
+
+		logger.Info("CallbackQuery от пользователя",
+			zap.Int64("chat_id", chatID),
+			zap.String("from", user),
+			zap.String("data", data),
+		)
+
+		var payload map[string]interface{}
+
+		switch data {
+		case "pump_on":
+			payload = map[string]interface{}{"command": "pump_on"}
+		case "pump_on_60":
+			payload = map[string]interface{}{"command": "pump_on", "minutes": 60}
+		case "pump_on_120":
+			payload = map[string]interface{}{"command": "pump_on", "minutes": 120}
+		case "pump_off":
+			payload = map[string]interface{}{"command": "pump_off"}
+		case "status":
+			payload = map[string]interface{}{"command": "status"}
+		}
+
+		// Ответ на callback (иначе Telegram будет крутить "часики")
+		ack := tgbotapi.NewCallback(update.CallbackQuery.ID, "✅ Команда принята: "+data)
+		if _, err := bot.Request(ack); err != nil {
+			logger.Error("Ошибка отправки Callback ответа", zap.Error(err))
+		}
+
+		// Публикация в MQTT
+		if payload != nil {
+			go func(data map[string]interface{}) {
+				jsonPayload, err := json.Marshal(data)
+				if err != nil {
+					logger.Error("Ошибка сериализации JSON (callback)", zap.Error(err))
+					return
+				}
+				token := mqttClient.Publish("commands", 0, false, jsonPayload)
+				token.Wait()
+				logger.Info("Команда из CallbackQuery отправлена в MQTT", zap.ByteString("payload", jsonPayload))
+			}(payload)
+		}
+		return
+	}
+
+	// === Обработка обычных сообщений (Message) ===
 	if update.Message == nil {
 		return
 	}
@@ -124,7 +175,7 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 		zap.String("text", text),
 	)
 
-	parts := strings.Fields(text) // разбиваем на слова
+	parts := strings.Fields(text)
 	if len(parts) == 0 {
 		return
 	}
@@ -140,29 +191,28 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 	switch cmd {
 	case "/start":
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите команду:")
-		keyboard := tgbotapi.NewReplyKeyboard(
-			tgbotapi.NewKeyboardButtonRow(
-				tgbotapi.NewKeyboardButton("/pump_on"),
-				tgbotapi.NewKeyboardButton("/pump_on 60"),
-				tgbotapi.NewKeyboardButton("/pump_on 120"),
+
+		inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("💧 /pump_on", "pump_on"),
+				tgbotapi.NewInlineKeyboardButtonData("💧 /pump_on 60", "pump_on_60"),
+				tgbotapi.NewInlineKeyboardButtonData("💧 /pump_on 120", "pump_on_120"),
 			),
-			tgbotapi.NewKeyboardButtonRow(
-				tgbotapi.NewKeyboardButton("/status"),
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("📊 /status", "status"),
 			),
-			tgbotapi.NewKeyboardButtonRow(
-				tgbotapi.NewKeyboardButton("/pump_off"),
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("⛔ /pump_off", "pump_off"),
 			),
 		)
-		keyboard.ResizeKeyboard = true
-		msg.ReplyMarkup = keyboard
-		_, err := bot.Send(msg)
-		if err != nil {
-			logger.Info("Не могу отправить клавиатуру")
+
+		msg.ReplyMarkup = inlineKeyboard
+		if _, err := bot.Send(msg); err != nil {
+			logger.Error("Не могу отправить клавиатуру", zap.Error(err))
 		}
+
 	case "/pump_on":
 		payload = map[string]interface{}{"command": "pump_on"}
-
-		// Попробуем разобрать аргумент как продолжительность
 		if arg != "" {
 			if minutes, err := strconv.Atoi(arg); err == nil && minutes > 0 {
 				payload["minutes"] = minutes
@@ -174,11 +224,8 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "/status":
 		payload = map[string]interface{}{"command": "status"}
-
-	default:
 	}
 
-	// Публикация в MQTT — асинхронно
 	if payload != nil {
 		go func(data map[string]interface{}) {
 			jsonPayload, err := json.Marshal(data)
