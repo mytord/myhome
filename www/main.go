@@ -210,7 +210,8 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 		if _, err := bot.Send(msg); err != nil {
 			logger.Error("Не могу отправить клавиатуру", zap.Error(err))
 		}
-
+		w.WriteHeader(http.StatusOK)
+		return
 	case "/pump_on":
 		payload = map[string]interface{}{"command": "pump_on"}
 		if arg != "" {
