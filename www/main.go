@@ -137,6 +137,26 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 	var payload map[string]interface{}
 
 	switch cmd {
+	case "/start":
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите команду:")
+		keyboard := tgbotapi.NewReplyKeyboard(
+			tgbotapi.NewKeyboardButtonRow(
+				tgbotapi.NewKeyboardButton("/pump_on"),
+				tgbotapi.NewKeyboardButton("/pump_on 60"),
+				tgbotapi.NewKeyboardButton("/pump_on 120"),
+			),
+			tgbotapi.NewKeyboardButtonRow(
+				tgbotapi.NewKeyboardButton("/status"),
+			),
+			tgbotapi.NewKeyboardButtonRow(
+				tgbotapi.NewKeyboardButton("/pump_off"),
+			),
+		)
+		msg.ReplyMarkup = keyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			logger.Info("Не могу отправить клавиатуру")
+		}
 	case "/pump_on":
 		payload = map[string]interface{}{"command": "pump_on"}
 
