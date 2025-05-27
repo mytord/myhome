@@ -190,12 +190,6 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch cmd {
 	case "/start":
-		removeMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "Обновляю клавиатуру...")
-		removeMsg.ReplyMarkup = tgbotapi.ReplyKeyboardRemove{}
-		if _, err := bot.Send(removeMsg); err != nil {
-			logger.Error("Ошибка удаления старой клавиатуры", zap.Error(err))
-		}
-
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите команду:")
 
 		inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
