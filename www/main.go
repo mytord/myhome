@@ -135,6 +135,10 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 			payload = map[string]interface{}{"command": "pump_on", "minutes": 120}
 		case "pump_off":
 			payload = map[string]interface{}{"command": "pump_off"}
+		case "valve_on":
+			payload = map[string]interface{}{"command": "valve_on", "seconds": 15}
+		case "valve_off":
+			payload = map[string]interface{}{"command": "valve_off"}
 		case "status":
 			payload = map[string]interface{}{"command": "status"}
 		}
@@ -204,6 +208,10 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData("⛔ Выкл", "pump_off"),
 			),
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("🚰 Вкл", "valve_on"),
+				tgbotapi.NewInlineKeyboardButtonData("🚫🚰 Выкл", "valve_off"),
+			),
 		)
 
 		msg.ReplyMarkup = inlineKeyboard
@@ -230,6 +238,16 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "/status":
 		payload = map[string]interface{}{"command": "status"}
+
+	case "/valve_on":
+		payload = map[string]interface{}{"command": "valve_on"}
+		if arg != "" {
+			if seconds, err := strconv.Atoi(arg); err == nil && seconds > 0 {
+				payload["seconds"] = seconds
+			}
+		}
+	case "/valve_off":
+		payload = map[string]interface{}{"command": "valve_off"}
 	}
 
 	if payload != nil {
