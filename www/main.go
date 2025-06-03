@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -267,7 +268,7 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func telegramMessageSender(mqttClient mqtt.Client) {
-	if token := mqttClient.Subscribe("messages", 0, func(client mqtt.Client, msg mqtt.Message) {
+	if token := mqttClient.Subscribe("messages/#", 0, func(client mqtt.Client, msg mqtt.Message) {
 		logger.Info("Есть сообщение на отправку в telegram.")
 
 		text := string(msg.Payload())
@@ -277,7 +278,7 @@ func telegramMessageSender(mqttClient mqtt.Client) {
 			return
 		}
 
-		tgMsg := tgbotapi.NewMessage(chatID, text)
+		tgMsg := tgbotapi.NewMessage(chatID, fmt.Sprintf("[%s]\n%s", msg.Topic(), text))
 		if _, err := bot.Send(tgMsg); err != nil {
 			logger.Error("Ошибка отправки сообщения в Telegram", zap.Error(err))
 		} else {
