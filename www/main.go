@@ -136,8 +136,12 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 			payload = map[string]interface{}{"command": "pump_on", "minutes": 120}
 		case "pump_off":
 			payload = map[string]interface{}{"command": "pump_off"}
-		case "valve_on":
-			payload = map[string]interface{}{"command": "valve_on", "seconds": 15}
+		case "valve_on_12":
+			payload = map[string]interface{}{"command": "valve_on", "seconds": 12}
+		case "valve_on_72":
+			payload = map[string]interface{}{"command": "valve_on", "seconds": 72}
+		case "valve_on_120":
+			payload = map[string]interface{}{"command": "valve_on", "seconds": 120}
 		case "valve_off":
 			payload = map[string]interface{}{"command": "valve_off"}
 		case "plant_interval_1":
@@ -205,24 +209,26 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 		inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("💧 Вкл", "pump_on"),
-				tgbotapi.NewInlineKeyboardButtonData("💧 1 ч", "pump_on_60"),
-				tgbotapi.NewInlineKeyboardButtonData("💧 2 ч", "pump_on_120"),
+				tgbotapi.NewInlineKeyboardButtonData("💧Вкл", "pump_on"),
+				tgbotapi.NewInlineKeyboardButtonData("💧1 ч", "pump_on_60"),
+				tgbotapi.NewInlineKeyboardButtonData("💧2 ч", "pump_on_120"),
 			),
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("📊 Статус", "status"),
+				tgbotapi.NewInlineKeyboardButtonData("📊Статус", "status"),
 			),
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("⛔ Выкл", "pump_off"),
+				tgbotapi.NewInlineKeyboardButtonData("⛔Выкл", "pump_off"),
 			),
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("🚰 Вкл", "valve_on"),
-				tgbotapi.NewInlineKeyboardButtonData("🚫🚰 Выкл", "valve_off"),
+				tgbotapi.NewInlineKeyboardButtonData("🚰02L", "valve_on_12"),
+				tgbotapi.NewInlineKeyboardButtonData("🚰12L", "valve_on_72"),
+				tgbotapi.NewInlineKeyboardButtonData("🚰20L", "valve_on_120"),
+				tgbotapi.NewInlineKeyboardButtonData("🚫🚰Выкл", "valve_off"),
 			),
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("🪴 1 м", "plant_interval_1"),
-				tgbotapi.NewInlineKeyboardButtonData("🪴 5 м", "plant_interval_5"),
-				tgbotapi.NewInlineKeyboardButtonData("🪴 30 м", "plant_interval_30"),
+				tgbotapi.NewInlineKeyboardButtonData("🪴1м", "plant_interval_1"),
+				tgbotapi.NewInlineKeyboardButtonData("🪴5м", "plant_interval_5"),
+				tgbotapi.NewInlineKeyboardButtonData("🪴30м", "plant_interval_30"),
 			),
 		)
 
