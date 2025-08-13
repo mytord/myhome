@@ -136,12 +136,8 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 			payload = map[string]interface{}{"command": "pump_on", "minutes": 120}
 		case "pump_off":
 			payload = map[string]interface{}{"command": "pump_off"}
-		case "valve_on_36":
-			payload = map[string]interface{}{"command": "valve_on", "seconds": 36}
-		case "valve_on_48":
-			payload = map[string]interface{}{"command": "valve_on", "seconds": 48}
-		case "valve_on_120":
-			payload = map[string]interface{}{"command": "valve_on", "seconds": 120}
+		case "valve_on_60":
+			payload = map[string]interface{}{"command": "valve_on", "seconds": 60}
 		case "valve_off":
 			payload = map[string]interface{}{"command": "valve_off"}
 		case "plant_interval_1":
@@ -220,9 +216,7 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 				tgbotapi.NewInlineKeyboardButtonData("⛔Выкл", "pump_off"),
 			),
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("🚰06L", "valve_on_36"),
-				tgbotapi.NewInlineKeyboardButtonData("🚰08L", "valve_on_48"),
-				tgbotapi.NewInlineKeyboardButtonData("🚰20L", "valve_on_120"),
+				tgbotapi.NewInlineKeyboardButtonData("🚰10L", "valve_on_60"),
 				tgbotapi.NewInlineKeyboardButtonData("🚫🚰Выкл", "valve_off"),
 			),
 			tgbotapi.NewInlineKeyboardRow(
