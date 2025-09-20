@@ -44,7 +44,7 @@ func main() {
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	wwwServerRootUrl := os.Getenv("WWW_SERVER_ROOT_URL")
 	webhookPath := "/tg/webhook"
-	grafanaWebhookPath := "/alert"
+	testPath := "/test"
 	webhookUrl := wwwServerRootUrl + webhookPath
 
 	if botToken == "" {
@@ -88,7 +88,7 @@ func main() {
 	// HTTP сервер
 	mux := http.NewServeMux()
 	mux.HandleFunc(webhookPath, telegramCommandHandler)
-	mux.HandleFunc(grafanaWebhookPath, grafanaWebhookHandler)
+	mux.HandleFunc(testPath, testHandler)
 
 	srv := &http.Server{
 		Addr:    ":8080",
@@ -289,31 +289,8 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func grafanaWebhookHandler(w http.ResponseWriter, r *http.Request) {
-	//if r.Method != http.MethodPost {
-	//	http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
-	//	return
-	//}
-	//
-	//body, err := io.ReadAll(r.Body)
-	//if err != nil {
-	//	http.Error(w, "Failed to read body", http.StatusBadRequest)
-	//	return
-	//}
-	//defer r.Body.Close()
-	//
-	//var alert GrafanaAlert
-	//if err := json.Unmarshal(body, &alert); err != nil {
-	//	log.Printf("Invalid JSON: %v", err)
-	//	http.Error(w, "Invalid JSON", http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//// Просто выводим содержимое алерта
-	//log.Printf("Grafana Alert: Title=%s State=%s Message=%s", alert.Title, alert.State, alert.Message)
-
+func testHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "ok")
 }
 
 func telegramMessageSender(mqttClient mqtt.Client) {
