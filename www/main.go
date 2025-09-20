@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -291,27 +290,27 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func grafanaWebhookHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
-	var alert GrafanaAlert
-	if err := json.Unmarshal(body, &alert); err != nil {
-		log.Printf("Invalid JSON: %v", err)
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	// Просто выводим содержимое алерта
-	log.Printf("Grafana Alert: Title=%s State=%s Message=%s", alert.Title, alert.State, alert.Message)
+	//if r.Method != http.MethodPost {
+	//	http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
+	//	return
+	//}
+	//
+	//body, err := io.ReadAll(r.Body)
+	//if err != nil {
+	//	http.Error(w, "Failed to read body", http.StatusBadRequest)
+	//	return
+	//}
+	//defer r.Body.Close()
+	//
+	//var alert GrafanaAlert
+	//if err := json.Unmarshal(body, &alert); err != nil {
+	//	log.Printf("Invalid JSON: %v", err)
+	//	http.Error(w, "Invalid JSON", http.StatusBadRequest)
+	//	return
+	//}
+	//
+	//// Просто выводим содержимое алерта
+	//log.Printf("Grafana Alert: Title=%s State=%s Message=%s", alert.Title, alert.State, alert.Message)
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "ok")
