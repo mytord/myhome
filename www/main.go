@@ -65,7 +65,8 @@ func main() {
 		SetKeepAlive(2 * time.Second).
 		SetPingTimeout(1 * time.Second).
 		SetUsername(os.Getenv("MQTT_USER")).
-		SetPassword(os.Getenv("MQTT_PASSWORD"))
+		SetPassword(os.Getenv("MQTT_PASSWORD")).
+		SetClientID("ServerAppClient")
 	mqttClient = mqtt.NewClient(opts)
 	if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
 		logger.Fatal("Ошибка подключения к MQTT", zap.Error(token.Error()))
