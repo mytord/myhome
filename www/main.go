@@ -27,14 +27,6 @@ var (
 	chatID     = int64(254617095)
 )
 
-type GrafanaAlert struct {
-	Title   string `json:"title"`
-	State   string `json:"state"`
-	Message string `json:"message"`
-	RuleID  int    `json:"ruleId"`
-	OrgID   int    `json:"orgId"`
-}
-
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
