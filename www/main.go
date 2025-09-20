@@ -23,7 +23,7 @@ import (
 var (
 	bot        *tgbotapi.BotAPI
 	mqttClient mqtt.Client
-	logger     = zap.Must(zap.NewProduction())
+	logger     = zap.Must(zap.NewDevelopment())
 	chatID     = int64(254617095)
 )
 
