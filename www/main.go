@@ -282,7 +282,9 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func testHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("🔥 Test handler triggered")
 	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("OK\n"))
 }
 
 func telegramMessageSender(mqttClient mqtt.Client) {
