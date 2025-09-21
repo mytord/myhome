@@ -60,6 +60,21 @@ services:
       - influxdb
     restart: unless-stopped
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SERVER_ROOT_URL=${GRAFANA_SERVER_ROOT_URL}
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+
   www:
     build:
       context: .
