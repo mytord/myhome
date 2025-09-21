@@ -96,3 +96,4 @@ volumes:
   mosquitto_data:
   influxdb_data:
   grafana7_data:
+  grafana_data:
