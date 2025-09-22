@@ -36,7 +36,7 @@ func main() {
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	wwwServerRootUrl := os.Getenv("WWW_SERVER_ROOT_URL")
 	webhookPath := "/tg/webhook"
-	testPath := "/tg/test"
+	testPath := "/xxx"
 	webhookUrl := wwwServerRootUrl + webhookPath
 
 	if botToken == "" {
