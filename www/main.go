@@ -222,11 +222,11 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 				tgbotapi.NewInlineKeyboardButtonData("🚰10L", "valve_on_60"),
 				tgbotapi.NewInlineKeyboardButtonData("🚫🚰Выкл", "valve_off"),
 			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("🪴1м", "plant_interval_1"),
-				tgbotapi.NewInlineKeyboardButtonData("🪴5м", "plant_interval_5"),
-				tgbotapi.NewInlineKeyboardButtonData("🪴30м", "plant_interval_30"),
-			),
+			//tgbotapi.NewInlineKeyboardRow(
+			//	tgbotapi.NewInlineKeyboardButtonData("🪴1м", "plant_interval_1"),
+			//	tgbotapi.NewInlineKeyboardButtonData("🪴5м", "plant_interval_5"),
+			//	tgbotapi.NewInlineKeyboardButtonData("🪴30м", "plant_interval_30"),
+			//),
 		)
 
 		msg.ReplyMarkup = inlineKeyboard
