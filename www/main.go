@@ -26,6 +26,7 @@ var (
 	mqttClient mqtt.Client
 	logger     = zap.Must(zap.NewDevelopment())
 	chatID     = int64(254617095)
+	raptToken  = os.Getenv("RAPT_TOKEN")
 )
 
 func main() {
@@ -37,11 +38,15 @@ func main() {
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	wwwServerRootUrl := os.Getenv("WWW_SERVER_ROOT_URL")
 	webhookPath := "/tg/webhook"
-	testPath := "/xxx"
+	raptWebhookPath := "/rapt"
 	webhookUrl := wwwServerRootUrl + webhookPath
 
 	if botToken == "" {
 		log.Fatal("Не заданы обязательные переменные окружения")
+	}
+
+	if raptToken == "" {
+		log.Fatal("Не задан rapt-токен")
 	}
 
 	// Telegram Bot
@@ -81,7 +86,7 @@ func main() {
 	// HTTP сервер
 	mux := http.NewServeMux()
 	mux.HandleFunc(webhookPath, telegramCommandHandler)
-	mux.HandleFunc(testPath, testHandler)
+	mux.HandleFunc(raptWebhookPath, raptWhHandler)
 
 	srv := &http.Server{
 		Addr:    ":8080",
@@ -282,8 +287,12 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func testHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("🔥 Test handler triggered")
+func raptWhHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("X-RAPT-Token")
+	if token != raptToken {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
