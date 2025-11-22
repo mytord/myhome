@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -283,6 +284,18 @@ func telegramCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 func testHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("🔥 Test handler triggered")
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Println("❌ Error reading body:", err)
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	// Логируем сырое тело
+	log.Println("📩 Webhook body:", string(body))
+
+	// Ответ
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte("OK\n"))
 }
