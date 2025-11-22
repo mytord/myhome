@@ -304,9 +304,41 @@ func raptWhHandler(w http.ResponseWriter, r *http.Request) {
 	// Логируем сырое тело
 	log.Println("📩 Webhook body:", string(body))
 
+	var payload map[string]interface{}
+	if err = json.Unmarshal(body, &payload); err != nil {
+		log.Println("❌ Ошибка JSON Unmarshal:", err)
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	go func() {
+		device := getString(payload["deviceId"])
+		if device == "" {
+			device = "unknown"
+		}
+
+		temp := getFloat(payload["temperature"])
+		gravity := getFloat(payload["gravity"])
+		battery := getFloat(payload["battery"])
+
+		data := fmt.Sprintf(
+			"rapt_metrics,device=%s temperature=%f,gravity=%f,battery=%f",
+			device, temp, gravity, battery,
+		)
+
+		topic := "rapt/metrics"
+
+		res := mqttClient.Publish(topic, 0, false, data)
+		res.Wait()
+
+		logger.Info("RAPT → MQTT опубликовано",
+			zap.String("topic", topic),
+			zap.String("data", data),
+		)
+	}()
+
 	// Ответ
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte("OK\n"))
 }
 
 func telegramMessageSender(mqttClient mqtt.Client) {
@@ -328,5 +360,24 @@ func telegramMessageSender(mqttClient mqtt.Client) {
 		}
 	}); token.Wait() && token.Error() != nil {
 		logger.Fatal("Ошибка подписки на messages", zap.Error(token.Error()))
+	}
+}
+
+func getString(v interface{}) string {
+	s, _ := v.(string)
+	return s
+}
+
+func getFloat(v interface{}) float64 {
+	switch t := v.(type) {
+	case float64:
+		return t
+	case float32:
+		return float64(t)
+	case string:
+		f, _ := strconv.ParseFloat(t, 64)
+		return f
+	default:
+		return 0
 	}
 }
